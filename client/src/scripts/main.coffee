@@ -5,8 +5,8 @@
     $('span.message', @$el).click =>
       $('.control', @$el).toggleClass 'show'
       false
-    .mouseout =>
-      $('.control', @$el).removeClass 'show'
+    $('.control', @$el).mouseout ->
+      $(@).removeClass 'show'
     $('.button.icon-remove', @$el).click =>
       @remove()
       false
@@ -18,7 +18,7 @@
     $(@$el).show 300, =>
       unless @card or @pass
         $('.input-card', @$el).focus()
-  addMessage: (icon, message, style = '') =>
+  addMessage: (icon, message, style = '', show) =>
     console.log style
     if style instanceof Array
       style = style.join ' '
@@ -35,6 +35,8 @@
     $message = $("<span>").text message
     $control.addClass 'slide'
     $wrap.append($icon).append($message)
+    if show
+      $('.control', @$el).addClass 'show'
   getCard: =>
     @card ? $('.input-card', @$el).val()
   getPass: =>
@@ -57,7 +59,7 @@
       if data.status == 'success'
         @addMessage 'tick', 'Done', 'success'
       if data.status == 'error'
-        @addMessage 'cross', data.message, 'fail'
+        @addMessage 'cross', data.message, 'fail', true
 
 @CardList = class CardList
   constructor: (@$el) ->

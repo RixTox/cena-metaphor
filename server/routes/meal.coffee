@@ -77,7 +77,6 @@ module.exports = (req, res) ->
         jar: cookies
       , (err, response, body) ->
         decoded_body = iconv.decode body, 'gbk'
-        console.log decoded_body
         for e in errcode
           if e.str and decoded_body.indexOf(e.str) >= 0
             return res.send done e
