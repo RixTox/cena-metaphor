@@ -43,8 +43,8 @@
     @pass ? $('.input-pass', @$el).val()
   remove: =>
     return if @parent.length() <= 1
+    @parent.remove @
     $(@$el).hide 300, =>
-      @parent.remove @
       @$el.remove()
   go: =>
     card = @getCard()
