@@ -1,5 +1,10 @@
 extends layouts/default
 
+block head
+  link(rel='stylesheet', href='styles/gh-fork-ribbon.css')
+  //if IE
+    link(rel='stylesheet', href='styles/gh-fork-ribbon.ie.css')
+
 block body
   script#tmpl-line(type='text/x-underscore')
     li.card-item
@@ -23,6 +28,10 @@ block body
         li.control-item.button.start
           span Start
           icon.icon-tick
+
+  .github-fork-ribbon-wrapper.right
+    .github-fork-ribbon
+      a(href='https://github.com/RixTox/cena') View on GitHub
 
 block scripts
   script(src='scripts/main.js')
