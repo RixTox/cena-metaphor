@@ -5,7 +5,7 @@ module.exports =
   'app-path'          : __dirname
   'client-path'       : path.join __dirname, 'client'
   'server-path'       : path.join __dirname, 'server'
-  'public-uri'        : '/'
+  'base'              : '/'
   'view engine'       : 'jade'
   'x-powered-by'      : false
   'strict routing'    : true

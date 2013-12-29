@@ -36,8 +36,8 @@ compiler = (req, res, next) ->
 
 module.exports = (app) ->
   options = app.get 'compilers'
-  env = app.get 'env' || 'development'
-  public_uri = path.resolve app.get 'public-uri' || '/'
+  env = app.get('env') || 'development'
+  public_uri = path.resolve app.get('base') || '/'
   source_path = path.join app.get('client-path'), 'src'
   if !source_path
     throw new Error 'Compiler middleware needs source-path in configuration'
