@@ -18,7 +18,7 @@
     $(@$el).show 300, =>
       unless @card or @pass
         $('.input-card', @$el).focus()
-  addMessage: (icon, message, style = '', show) =>
+  addMessage: (icon, message, style = '', show) ->
     console.log style
     if style instanceof Array
       style = style.join ' '
@@ -37,16 +37,16 @@
     $wrap.append($icon).append($message)
     if show
       $('.control', @$el).addClass 'show'
-  getCard: =>
+  getCard: ->
     @card ? $('.input-card', @$el).val()
-  getPass: =>
+  getPass: ->
     @pass ? $('.input-pass', @$el).val()
-  remove: =>
+  remove: ->
     return if @parent.length() <= 1
     @parent.remove @
     $(@$el).hide 300, =>
       @$el.remove()
-  go: =>
+  go: ->
     card = @getCard()
     pass = @getPass()
     return unless card and pass
@@ -64,20 +64,20 @@
 @CardList = class CardList
   constructor: (@$el) ->
     @list = new Array()
-  add: (num, pass) =>
+  add: (num, pass) ->
     @list.push new Card @, num, pass
-  append: (el) =>
+  append: (el) ->
     @$el.append el
-  prepend: (el) =>
+  prepend: (el) ->
     @$el.prepend el
-  start: =>
+  start: ->
     for item in @list
       item.go()
-  length: =>
+  length: ->
     @list.length
-  indexOf: (card) =>
+  indexOf: (card) ->
     @list.indexOf card
-  remove: (index) =>
+  remove: (index) ->
     if typeof index == 'object'
       index = @indexOf index
     if index >= 0
