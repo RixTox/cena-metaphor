@@ -19,7 +19,6 @@
       unless @card or @pass
         $('.input-card', @$el).focus()
   addMessage: (icon, message, style = '', show) ->
-    console.log style
     if style instanceof Array
       style = style.join ' '
     if typeof style == 'string'
