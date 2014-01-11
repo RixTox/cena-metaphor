@@ -1,110 +1,114 @@
-fs = require 'fs'
-path = require 'path'
-extname = path.extname
-dirname = path.dirname
-resolve = path.resolve
-basename = path.basename
-exists = fs.exists
-statSync = fs.statSync
-existsSync = fs.existsSync
+fs          = require 'fs'
+path        = require 'path'
+stat        = fs.stat
+exists      = fs.exists
+readdir     = fs.readdir
+statSync    = fs.statSync
+existsSync  = fs.existsSync
 readdirSync = fs.readdirSync
+extname     = path.extname
+dirname     = path.dirname
+resolve     = path.resolve
+basename    = path.basename
 
-accept_extname = ['.coffee', '.js', '.json']
-
-default_options =
-  path_base: '/'
+defaults =
   mode: 'independent'
   object: on
 
-object_filter = (obj, arr) ->
-  ret = {}
-  for i in arr
-    unless typeof obj[i] == 'undefined'
-      ret[i] = obj[i]
-  return ret
+getCaller = (offset = 0) ->
+  traceFn = Error.prepareStackTrace
+  Error.prepareStackTrace = (e, s) -> s
+  stack = (new Error()).stack
+  Error.prepareStackTrace = traceFn
+  return stack[2 - offset].getFileName()
 
-apply_default_options = (options, default_options) ->
-  for k, v of default_options
-    if typeof options[k] == 'undefined'
-      options[k] = v
+getFileList = (options, callback) ->
+  _path = options.path
+  cancat_files = (files, callback) ->
+    files.map (file) ->
+      file = resolve _path, file
+      file += statSync(file).isDirectory() && '/' || ''
+  if callback
+    return exists _path, (_exists) ->
+      if _exists
+        stat _path, (err, _stat) ->
+          return callback err if err
+          if _stat.isDirectory()
+            readdir _path, (err, files) ->
+              return callback err if err
+              return callback null, cancat_files files
+  else
+    unless existsSync _path
+      throw new Error "Loader: Cannot find #{_path}"
+    unless statSync(_path).isDirectory()
+      return cancat_files readdirSync _path
+  throw new Error 'Loader: Loading a file'
 
-get_file_list = (path) ->
-  list = []
-  for file in readdirSync path
-    list.push resolve path, file
-  return list
-
-get_file_dir_list = (path) ->
-  list =
-    dir: []
-    file: []
-  for file in readdirSync path
-    file = resolve path, file
-    if statSync(file).isDirectory()
-      list.dir.push file
-    else
-      list.file.push file
-  return list
-
-decide_loader = (options) ->
-  console.log options
+decideLoader = (options) ->
   switch options.mode
     when 'independent'
-      return independent_loader
+      return independentLoader
     when 'dependent'
       return dependent_loader
 
-try_require = (path) ->
-  try
-    ret = require path
-  catch error
-    console.log "Error when loading #{path}:\n", error
-    process.exit 1
-  return ret
+independentLoader = (options, callback) ->
+  ret = {}
+  for _path in options.fileList
+    ret[basename _path] = require _path
+  unless options.object
+    ret = Object.keys(ret).map (k) -> ret[k]
+  unless callback
+    return ret
+  callback null, ret
 
-independent_loader = (options) ->
-  obj = options.object
-  ret = if obj then {} else []
-  add = (k, v) ->
-    if obj
-      ret[k] = v
-    else
-      ret.push v
-  for path in options.file_list
-    unless statSync(path).isDirectory()
-      ext = extname(path).toLowerCase()
-    key = basename path, ext
-    add key, try_require path
-  return ret
-
-dependent_loader = (options) ->
+dependentLoader = (options, callback) ->
 
 ###*
  * Module Loader
- * @param {Object}   options Options passed to loader
+ * @param {Object}   options
  * ------OR------
- * @param {String}   path    Absolute path to load
- * ------OR------
- * @param {String}   path    Relative path to load
- * @param {String}   base    Base path to resolve
+ * @param {String}   path
 ###
-Loader = (options, base) ->
-  if typeof options == 'string'
-    options = path: options
-    if typeof base == 'string'
-      options.path_base = base
-  apply_default_options options, default_options
-  options.path = resolve options.path_base, options.path
-  options.file_list = get_file_list
-  # options.file_dir_list = get_file_dir_list options.path
-  loader = decide_loader options
-  return loader options
+Loader = (args, callback) ->
+  if typeof args == 'string'
+    args = path: args
 
+  # copy the options parameter
+  options = __proto__: args
+
+  # find the file path of the caller
+  options.caller = getCaller()
+  unless options.base?
+    options.base = dirname options.caller
+
+  # apply default options
+  for k, v of defaults
+    options[k] ?= v
+
+  # resolve relative path to caller dir
+  options.path = resolve options.base, options.path
+
+  # choose loader for different modes
+  options.loader = decideLoader options
+
+  if callback
+    return getFileList options, (err, fileList) ->
+      return callback err if err
+      options.fileList = fileList
+      options.loader options, callback
+  else
+    options.fileList = getFileList options.path
+    return options.loader options
+
+###*
+ * Get or set default options
+ * @param  {Object} options Default options to set
+ * @return {Object}         Default options
+###
 Loader.default = (options) ->
-  if options?
-    options = object_filter options, Object.keys default_options
-    for k, v of options
-      default_options[k] = v
-  return default_options
+  if options
+    for i in Object.keys defaults
+      defaults[i] = options[i]
+  return defaults
 
 module.exports = Loader
