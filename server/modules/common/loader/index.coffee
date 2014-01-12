@@ -1,5 +1,6 @@
 fs          = require 'fs'
 path        = require 'path'
+async       = require 'async'
 stat        = fs.stat
 exists      = fs.exists
 readdir     = fs.readdir
@@ -12,8 +13,16 @@ resolve     = path.resolve
 basename    = path.basename
 
 defaults =
+  # Include only directories under path
+  dirOnly: off
+  # Load mode, include:
+  # * independent - require every file and folder directly
+  # * dependent   - analyse depencence then load them in order
   mode: 'independent'
+  # Return the result as an object or array
   object: on
+  # Allow to include the caller file itself
+  self: off
 
 getCaller = (offset = 0) ->
   traceFn = Error.prepareStackTrace
@@ -22,44 +31,71 @@ getCaller = (offset = 0) ->
   Error.prepareStackTrace = traceFn
   return stack[2 - offset].getFileName()
 
-getFileList = (options, callback) ->
-  _path = options.path
-  cancat_files = (files, callback) ->
-    files.map (file) ->
-      file = resolve _path, file
-      file += statSync(file).isDirectory() && '/' || ''
+getFilepaths = (options, callback) ->
+  filepath = options.path
+  errNotFound = new Error "Loader: Cannot find path #{filepath}"
+  errFile = new Error "Loader: Loading a file #{filepath}"
+  clear = (arr) ->
+    arr.filter (item) -> item
+  cancatFiles = (filenames, callback) ->
+    filepaths = filenames.map (_filepath) ->
+      _filepath = resolve filepath, _filepath
+      isDir = statSync(_filepath).isDirectory()
+      unless !options.dirOnly || isDir
+        return undefined
+      _filepath += isDir && '/' || ''
+    filepaths = filepaths.filter (filepath, index) ->
+      unless filepath && (options.self || filepath != options.caller) &&
+      (!options.filterSync || options.filterSync filenames[index], filepath)
+        return !delete filenames[index]
+      return true
+    filenames = clear filenames
+    return filepaths unless callback
+    return callback null, filepaths unless options.filter
+    async.map Object.keys(filenames), (index, callback) ->
+      options.filter filenames[index]
+      , filepaths[index]
+      , (err, result) ->
+        return callback err if err
+        return callback null, result && filepaths[index] || undefined
+    , (err, result) ->
+      return callback err if err
+      return callback null, clear result
   if callback
-    return exists _path, (_exists) ->
-      if _exists
-        stat _path, (err, _stat) ->
+    return exists filepath, (fileExists) ->
+      unless fileExists
+        return callback errNotFound
+      stat filepath, (err, fileStat) ->
+        return callback err if err
+        unless fileStat.isDirectory()
+          return callback errFile
+        readdir filepath, (err, filenames) ->
           return callback err if err
-          if _stat.isDirectory()
-            readdir _path, (err, files) ->
-              return callback err if err
-              return callback null, cancat_files files
+          return cancatFiles filenames, callback
   else
-    unless existsSync _path
-      throw new Error "Loader: Cannot find #{_path}"
-    unless statSync(_path).isDirectory()
-      return cancat_files readdirSync _path
-  throw new Error 'Loader: Loading a file'
+    unless existsSync filepath
+      throw errNotFound
+    if statSync(filepath).isDirectory()
+      return cancatFiles readdirSync filepath
+    else throw errFile
 
 decideLoader = (options) ->
-  switch options.mode
+  options.loader = switch options.mode
     when 'independent'
-      return independentLoader
+      independentLoader
     when 'dependent'
-      return dependent_loader
+      options.dirOnly = on
+      independentLoader
 
 independentLoader = (options, callback) ->
   ret = {}
-  for _path in options.fileList
-    ret[basename _path] = require _path
+  for filepath in options.filepaths
+    ret[basename filepath] = require filepath
   unless options.object
     ret = Object.keys(ret).map (k) -> ret[k]
   unless callback
     return ret
-  callback null, ret
+  return callback null, ret
 
 dependentLoader = (options, callback) ->
 
@@ -89,15 +125,15 @@ Loader = (args, callback) ->
   options.path = resolve options.base, options.path
 
   # choose loader for different modes
-  options.loader = decideLoader options
+  decideLoader options
 
   if callback
-    return getFileList options, (err, fileList) ->
+    return getFilepaths options, (err, filepaths) ->
       return callback err if err
-      options.fileList = fileList
+      options.filepaths = filepaths
       options.loader options, callback
   else
-    options.fileList = getFileList options.path
+    options.filepaths = getFilepaths options
     return options.loader options
 
 ###*
