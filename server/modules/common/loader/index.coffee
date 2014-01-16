@@ -1,6 +1,7 @@
 fs          = require 'fs'
 path        = require 'path'
 async       = require 'async'
+_           = require 'underscore'
 stat        = fs.stat
 exists      = fs.exists
 readdir     = fs.readdir
@@ -109,17 +110,15 @@ Loader = (args, callback) ->
   if typeof args == 'string'
     args = path: args
 
-  # copy the options parameter
-  options = __proto__: args
+  options = _.clone args
+
+  # apply default options
+  _.defaults options, defaults
 
   # find the file path of the caller
   options.caller = getCaller()
   unless options.base?
     options.base = dirname options.caller
-
-  # apply default options
-  for k, v of defaults
-    options[k] ?= v
 
   # resolve relative path to caller dir
   options.path = resolve options.base, options.path
@@ -127,14 +126,14 @@ Loader = (args, callback) ->
   # choose loader for different modes
   decideLoader options
 
-  if callback
-    return getFilepaths options, (err, filepaths) ->
-      return callback err if err
-      options.filepaths = filepaths
-      options.loader options, callback
-  else
+  unless callback
     options.filepaths = getFilepaths options
     return options.loader options
+
+  getFilepaths options, (err, filepaths) ->
+    return callback err if err
+    options.filepaths = filepaths
+    options.loader options, callback
 
 ###*
  * Get or set default options
@@ -142,9 +141,8 @@ Loader = (args, callback) ->
  * @return {Object}         Default options
 ###
 Loader.default = (options) ->
-  if options
-    for i in Object.keys defaults
-      defaults[i] = options[i]
-  return defaults
+  return defaults unless options
+  defaults = _.map defaults, (v, k) ->
+    options[k] || v
 
 module.exports = Loader

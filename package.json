@@ -15,11 +15,12 @@
     "nib": "~1.0.1",
     "querystring": "~0.2.0",
     "iconv-lite": "~0.2.11",
-    "stylus": "~0.41.3"
+    "stylus": "~0.41.3",
+    "underscore": "~1.5.2"
   },
   "main": "server/index.coffee",
   "scripts": {
-    "start" : "coffee server/index.coffee"
+    "start": "coffee server/index.coffee"
   },
   "devDependencies": {
     "coffee-script": "~1.6.3"
