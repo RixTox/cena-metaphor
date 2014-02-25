@@ -1,39 +1,22 @@
-async = require 'async'
-iconv = require 'iconv-lite'
-request = require 'request'
-stringify = require('querystring').stringify
+async       = require 'async'
+iconv       = require 'iconv-lite'
+request     = require 'request'
+{stringify} = require 'querystring'
 
 URIs =
   cookies: 'http://bgy.gd.cn/mis/info/menu_info.asp?type=%D1%A7%C9%FA%CD%F8%D2%B3'
-  login: 'http://bgy.gd.cn/mis/info/list.asp'
+  login:   'http://bgy.gd.cn/mis/info/list.asp'
   booking: 'http://bgy.gd.cn/mis/info/dc_info/dc3_new.asp'
 
-errcode = [
-  {
-    str: '网页过期!!'
-    msg: 'Cookie Expired'
-    code: '0001'
-  }
-  {
-    str: '无条形码!!'
-    msg: 'Please Submit Card Number'
-    code: '0002'
-  }
-  {
-    str: '此条形码没有权限!!'
-    msg: 'Wrong Number'
-    code: '0003'
-  }
-  {
-    str: '密码或条形码错误!!'
-    msg: 'Wrong Password'
-    code: '0004'
-  }
-  {
-    msg: 'No Available Weeks'
-    code: '0005'
-  }
-]
+errcode = []
+o = (msg, str) ->
+  errcode.push {code:errcode.length,msg,str}
+
+o 'Cookie Expired'      , '网页过期!!'
+o 'Invalid Card Number' , '无条形码!!'
+o 'Wrong Number'        , '此条形码没有权限!!'
+o 'Wrong Password'      , '密码或条形码错误!!'
+o 'No Available Weeks'
 
 fields = {}
 for i in [1..5]
@@ -46,7 +29,7 @@ headers =
 
 done = (err) ->
   ret =
-    status: if err then 'error' else 'success'
+    status: err && 'error' || 'success'
   if err
     ret.code = err.code
     ret.message = err.msg
