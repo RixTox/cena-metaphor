@@ -3,14 +3,16 @@ iconv       = require 'iconv-lite'
 request     = require 'request'
 {stringify} = require 'querystring'
 
-URIs =
-  cookies: 'http://bgy.gd.cn/mis/info/menu_info.asp?type=%D1%A7%C9%FA%CD%F8%D2%B3'
-  login:   'http://bgy.gd.cn/mis/info/list.asp'
-  booking: 'http://bgy.gd.cn/mis/info/dc_info/dc3_new.asp'
+base = 'http://bgy.gd.cn/mis/info/'
 
-errcode = []
+URIs =
+  cookies: "#{base}menu_info.asp?type=%D1%A7%C9%FA%CD%F8%D2%B3"
+  login:   "#{base}list.asp"
+  booking: "#{base}dc_info/dc3_new.asp"
+
+errs = []
 o = (msg, str) ->
-  errcode.push {code:errcode.length,msg,str}
+  errs.push {code:errs.length,msg,str}
 
 o 'Cookie Expired'      , '网页过期!!'
 o 'Invalid Card Number' , '无条形码!!'
@@ -60,7 +62,7 @@ module.exports = (req, res) ->
         jar: cookies
       , (err, response, body) ->
         decoded_body = iconv.decode body, 'gbk'
-        for e in errcode
+        for e in errs
           if e.str and decoded_body.indexOf(e.str) >= 0
             return res.send done e
         callback null, cookies
@@ -77,7 +79,7 @@ module.exports = (req, res) ->
           .filter (v,i,s) ->
             s.indexOf(v) == i
         unless week_list.length
-          return res.send done errcode[3]
+          return res.send done errs[3]
         callback null, cookies, week_list
 
     # book meal
