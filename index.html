@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Cena</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="styles/cena-icon.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/gh-fork-ribbon.css"><!--[if IE]>
+    <link rel="stylesheet" href="styles/gh-fork-ribbon.ie.css"><![endif]-->
+  </head>
+  <body>
+    <script id="tmpl-line" type="text/x-underscore">
+      <li class="card-item">
+        <div class="input">
+          <input placeholder="Number" value="<%= card %>" class="input-card">
+          <input type="password" placeholder="Password" value="<%= pass %>" class="input-pass">
+        </div>
+        <div class="control"><span class="message"></span><span class="button">
+            <icon class="button icon-remove"></icon></span></div>
+      </li>
+    </script>
+    <div class="wrapper">
+      <h1 id="title">Cena</h1>
+      <form id="main-form">
+        <ul id="form-list">
+          <li class="control-item button add"><span>Add a new line</span>
+            <icon class="icon-add"></icon>
+          </li>
+          <li class="card-list-item">
+            <ul id="card-list"></ul>
+          </li>
+          <li class="control-item button start"><span>Start</span>
+            <icon class="icon-tick"></icon>
+          </li>
+        </ul>
+      </form>
+    </div>
+    <div class="github-fork-ribbon-wrapper right">
+      <div class="github-fork-ribbon"><a href="https://github.com/RixTox/cena/tree/nw" target="_blank">View on GitHub</a></div>
+    </div>
+    <script src="lib/jquery.min.js"></script>
+    <script src="lib/underscore.min.js"></script>
+    <script src="scripts/main.js"></script>
+  </body>
+</html>

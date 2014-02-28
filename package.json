@@ -1,0 +1,32 @@
+{
+  "name": "Cena",
+  "description": "A student meal management system for GCGS",
+  "author": "RixTox <me@rixtox.com>",
+  "version": "0.1.0",
+  "window": {
+    "fullscreen": false,
+    "show": false,
+    "toolbar": false,
+    "position": "center",
+    "width": 800,
+    "height": 600,
+    "min_width": 800,
+    "min_height": 600
+  },
+  "dependencies": {
+    "async": "~0.2.9",
+    "request": "~2.30.0",
+    "querystring": "~0.2.0",
+    "iconv-lite": "~0.2.11",
+    "nwglobal": "0.0.1"
+  },
+  "main": "index.html",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/RixTox/cena.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RixTox/cena/issues"
+  }
+}

@@ -1,0 +1,89 @@
+/*
+  Icon Font: Cena
+*/
+
+@font-face {
+  font-family: "Cena";
+  src: url("../font/cena.eot");
+  src: url("../font/cena.eot?#iefix") format("embedded-opentype"),
+       url("../font/cena.woff") format("woff"),
+       url("../font/cena.ttf") format("truetype"),
+       url("../font/cena.svg#cena") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.icon-spin:before {
+  -webkit-animation: spin 2s infinite linear;
+  -moz-animation: spin 2s infinite linear;
+  -o-animation: spin 2s infinite linear;
+  animation: spin 2s infinite linear;
+}
+
+@-moz-keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+  }
+  100% {
+    -moz-transform: rotate(359deg);
+  }
+}
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+  }
+}
+@-o-keyframes spin {
+  0% {
+    -o-transform: rotate(0deg);
+  }
+  100% {
+    -o-transform: rotate(359deg);
+  }
+}
+@-ms-keyframes spin {
+  0% {
+    -ms-transform: rotate(0deg);
+  }
+  100% {
+    -ms-transform: rotate(359deg);
+  }
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(359deg);
+  }
+}
+
+[data-icon]:before { content: attr(data-icon); }
+
+[data-icon]:before,
+.icon-add:before,
+.icon-cross:before,
+.icon-loading:before,
+.icon-remove:before,
+.icon-tick:before,
+.icon-waiting:before {
+  font-family: "Cena";
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  text-decoration: inherit;
+}
+
+.icon-add:before { content: "\f100"; }
+.icon-cross:before { content: "\f101"; }
+.icon-loading:before { content: "\f102"; }
+.icon-remove:before { content: "\f103"; }
+.icon-tick:before { content: "\f104"; }
+.icon-waiting:before { content: "\f105"; }
