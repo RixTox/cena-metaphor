@@ -26,10 +26,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/RixTox/metaphor.git"
+    "url": "git://github.com/RixTox/cena.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/RixTox/metaphor/issues"
+    "url": "https://github.com/RixTox/cena/issues"
   }
 }
