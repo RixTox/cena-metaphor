@@ -3,7 +3,7 @@ iconv       = require 'iconv-lite'
 request     = require 'request'
 {stringify} = require 'querystring'
 
-base = 'http://bgy.gd.cn/mis/info/'
+base = 'http://bgy.gd.cn:8080/mis/info/'
 
 URIs =
   cookies: "#{base}menu_info.asp?type=%D1%A7%C9%FA%CD%F8%D2%B3"
